@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Course Requirements Lookup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      padding: 1rem;
+      max-width: 900px;
+      margin: auto;
+      background: #ffffff;
+      color: #091d20;
+    }
+    h2 {
+      text-align: center;
+      color: #093c44;
+    }
+    label {
+      font-weight: bold;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 2px solid #2f8d98;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+    .course-button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 0.5rem;
+      margin: 0.25rem 0;
+      background-color: #2f8d98;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .course-button:hover {
+      background-color: #115e6e;
+    }
+    .output-box {
+      background-color: #f8f8f8;
+      border: 1px solid #ccc;
+      border-left: 6px solid #2f8d98;
+      padding: 1rem;
+      margin-top: 1rem;
+      border-radius: 4px;
+    }
+    .output-box strong {
+      display: inline-block;
+      width: 250px;
+      color: #093c44;
+    }
+    .no-results {
+      color: #d9534f;
+      font-weight: bold;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Course Requirements Lookup</h2>
+  <label for="courseInput">Start typing a course title:</label>
+  <input type="text" id="courseInput" placeholder="e.g., Chemistry A" />
+  <div id="courseResults"></div>
+  <div id="outputBox"></div>
+
+  <script>
+    const API_URL = "https://script.google.com/a/macros/mivu.org/s/AKfycby-tCUKDQcIklm2cGDW2JpFp4WV9ZvqZHhsPLOaazmRd76h9-mHwTQ0n5AQaPfeB9xzsg/exec";
+
+    document.getElementById('courseInput').addEventListener('input', () => {
+      const query = document.getElementById('courseInput').value.toLowerCase().trim();
+      const courseResults = document.getElementById('courseResults');
+      courseResults.innerHTML = "";
+
+      if (query.length < 2) return;
+
+      fetch(API_URL + "?course=" + encodeURIComponent(query))
+        .then(res => res.json())
+        .then(data => {
+          courseResults.innerHTML = "";
+          if (!data || data.length === 0) return;
+          data.forEach(entry => {
+            const btn = document.createElement('button');
+            btn.className = 'course-button';
+            btn.textContent = entry.courseTitle;
+            btn.onclick = () => displayCourse(entry);
+            courseResults.appendChild(btn);
+          });
+        })
+        .catch(() => {
+          courseResults.innerHTML = "<div class='no-results'>Error retrieving course titles.</div>";
+        });
+    });
+
+    function displayCourse(course) {
+      const output = document.getElementById('outputBox');
+      output.innerHTML = `
+        <div class="output-box">
+          <p><strong>Course Title:</strong> ${course.courseTitle || "—"}</p>
+          <p><strong>Technical Requirements:</strong> ${course.technical || "—"}</p>
+          <p><strong>Device Restrictions:</strong> ${course.device || "—"}</p>
+          <p><strong>Required Operating Systems:</strong> ${course.os || "—"}</p>
+          <p><strong>Software Downloads:</strong> ${course.software || "—"}</p>
+          <p><strong>Additional Hardware or Technologies:</strong> ${course.hardware || "—"}</p>
+          <p><strong>Textbook / eText:</strong> ${course.textbook || "—"}</p>
+          <p><strong>ISBN:</strong> ${course.isbn || "—"}</p>
+          <p><strong>Estimated Cost of Text/eText:</strong> ${course.cost || "—"}</p>
+          <p><strong>Any Additional Costs:</strong> ${course.additionalCosts || "—"}</p>
+        </div>
+      `;
+      document.getElementById('courseResults').innerHTML = "";
+    }
+  </script>
+
+</body>
+</html>
