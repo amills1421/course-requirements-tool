@@ -73,31 +73,20 @@
 
   <script>
     const API_URL = "https://script.google.com/a/macros/mivu.org/s/AKfycby-tCUKDQcIklm2cGDW2JpFp4WV9ZvqZHhsPLOaazmRd76h9-mHwTQ0n5AQaPfeB9xzsg/exec";
+    let allTitles = [];
 
-    document.getElementById('courseInput').addEventListener('input', () => {
-      const query = document.getElementById('courseInput').value.toLowerCase().trim();
-      const courseResults = document.getElementById('courseResults');
-      courseResults.innerHTML = "";
+    async function fetchTitles() {
+      try {
+        const res = await fetch(API_URL + "?getTitles=true");
+        allTitles = await res.json();
+      } catch {
+        console.error("Failed to fetch course titles.");
+      }
+    }
 
-      if (query.length < 2) return;
-
-      fetch(API_URL + "?course=" + encodeURIComponent(query))
-        .then(res => res.json())
-        .then(data => {
-          courseResults.innerHTML = "";
-          if (!data || data.length === 0) return;
-          data.forEach(entry => {
-            const btn = document.createElement('button');
-            btn.className = 'course-button';
-            btn.textContent = entry.courseTitle;
-            btn.onclick = () => displayCourse(entry);
-            courseResults.appendChild(btn);
-          });
-        })
-        .catch(() => {
-          courseResults.innerHTML = "<div class='no-results'>Error retrieving course titles.</div>";
-        });
-    });
+    function filterTitles(query) {
+      return allTitles.filter(t => t.toLowerCase().includes(query));
+    }
 
     function displayCourse(course) {
       const output = document.getElementById('outputBox');
@@ -115,9 +104,42 @@
           <p><strong>Any Additional Costs:</strong> ${course.additionalCosts || "—"}</p>
         </div>
       `;
-      document.getElementById('courseResults').innerHTML = "";
     }
+
+    async function loadCourse(title) {
+      const res = await fetch(API_URL + "?course=" + encodeURIComponent(title));
+      const data = await res.json();
+      if (data && data.length > 0) {
+        displayCourse(data[0]);
+      } else {
+        document.getElementById('outputBox').innerHTML = "<div class='no-results'>No data found for that course.</div>";
+      }
+    }
+
+    document.getElementById('courseInput').addEventListener('input', () => {
+      const query = document.getElementById('courseInput').value.toLowerCase().trim();
+      const courseResults = document.getElementById('courseResults');
+      courseResults.innerHTML = "";
+
+      if (query.length < 2) return;
+
+      const matches = filterTitles(query);
+      matches.forEach(match => {
+        const btn = document.createElement('button');
+        btn.className = 'course-button';
+        btn.textContent = match;
+        btn.onclick = () => {
+          document.getElementById('courseInput').value = match;
+          loadCourse(match);
+          courseResults.innerHTML = "";
+        };
+        courseResults.appendChild(btn);
+      });
+    });
+
+    window.addEventListener('DOMContentLoaded', fetchTitles);
   </script>
 
 </body>
 </html>
+
