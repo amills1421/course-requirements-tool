@@ -116,7 +116,7 @@
 
   <div id="buttonControls" style="margin-bottom: 1rem;">
     <button class="control-button" onclick="clearResults()">Clear</button>
-    <button class="control-button" onclick="window.print()">Print</button>
+    <button class="control-button" onclick="delayedPrint()">Print</button>
   </div>
 
   <div id="courseResults"></div>
@@ -155,9 +155,10 @@
       // Line breaks
       str = str.replace(/\n/g, "<br>");
 
-      // Auto-link plain URLs
-      const urlRegex = /(https?:\/\/[^\s]+)/g;
-      str = str.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`);
+      // Auto-link plain URLs NOT inside anchor tags
+      str = str.replace(/(^|[^">])(https?:\/\/[^\s<]+)/g, (_, before, url) => {
+        return `${before}<a href="${url}" target="_blank">${url}</a>`;
+      });
 
       return str;
     }
@@ -213,6 +214,12 @@
       document.getElementById('courseInput').focus();
     }
 
+    function delayedPrint() {
+      setTimeout(() => {
+        window.print();
+      }, 100);
+    }
+
     document.getElementById('courseInput').addEventListener('input', () => {
       const query = document.getElementById('courseInput').value.toLowerCase().trim();
       const courseResults = document.getElementById('courseResults');
@@ -236,6 +243,5 @@
 
     window.addEventListener('DOMContentLoaded', fetchTitles);
   </script>
-
 </body>
 </html>
