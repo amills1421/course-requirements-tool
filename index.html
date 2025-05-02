@@ -120,12 +120,16 @@
       if (!val) return "—";
       let str = val.toString();
 
-      // Support markdown-style links [text](url)
-      str = str.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+      // Support [text](url) Markdown-style links
+      str = str.replace(/\[([^\]]+)\]\((https?:\/\/[^\s]+)\)/g, (_, text, url) => {
+        return `<a href="${url}" target="_blank">${text}</a>`;
+      });
 
       // Auto-detect plain URLs
       const urlRegex = /(https?:\/\/[^\s]+)/g;
       str = str.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`);
+
+      // Convert newlines to <br>
       str = str.replace(/\n/g, "<br>");
       return str;
     }
