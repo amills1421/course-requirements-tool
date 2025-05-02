@@ -78,7 +78,15 @@
       color: #a84c2a;
       text-decoration: underline;
     }
-  </style>
+  
+    #loadingIndicator {
+      text-align: center;
+      color: #a84c2a;
+      font-style: italic;
+      margin-top: 1rem;
+    }
+    </style>
+    
 </head>
 <body>
 
@@ -86,6 +94,7 @@
   <label for="courseInput">Start typing a course title:</label>
   <input type="text" id="courseInput" placeholder="e.g., Chemistry A" />
   <div id="courseResults"></div>
+  <div id="loadingIndicator" style="display:none;">Searching...</div>
   <div id="outputBox"></div>
 
   <script>
@@ -107,15 +116,6 @@
       return str.startsWith("http") ? `<a href="${str}" target="_blank">${str}</a>` : str;
     }
 
-    function generateCard(label, icon, value) {
-      return `
-        <div class="widget-card">
-          <h4><i class="${icon}"></i> ${label}</h4>
-          <p>${formatValue(value)}</p>
-        </div>
-      `;
-    }
-
     function displayCourse(course) {
       const output = document.getElementById('outputBox');
       output.innerHTML = `
@@ -128,19 +128,32 @@
           ${generateCard("Additional Hardware", "fas fa-microchip", course.hardware)}
           ${generateCard("Textbook / eText", "fas fa-book-open", course.textbook)}
           ${generateCard("ISBN", "fas fa-barcode", course.isbn)}
-          ${generateCard("Textbook / eText Estimated Cost", "fas fa-dollar-sign", course.cost)}
+          ${generateCard("Estimated Cost", "fas fa-dollar-sign", course.cost)}
           ${generateCard("Additional Costs", "fas fa-coins", course.additionalCosts)}
         </div>
       `;
     }
 
+    function generateCard(label, icon, value) {
+      return `
+        <div class="widget-card">
+          <h4><i class="${icon}"></i> ${label}</h4>
+          <p>${formatValue(value)}</p>
+        </div>
+      `;
+    }
+
     async function loadCourse(title) {
+      document.getElementById('loadingIndicator').style.display = 'block';
+      document.getElementById('outputBox').innerHTML = "";
       const res = await fetch(API_URL + "?course=" + encodeURIComponent(title));
       const data = await res.json();
+      document.getElementById('loadingIndicator').style.display = 'none';
       if (data && data.length > 0) {
         displayCourse(data[0]);
       } else {
-        document.getElementById('outputBox').innerHTML = "<div class='no-results'>No data found for that course.</div>";
+        document.getElementById('loadingIndicator').style.display = 'none';
+      document.getElementById('outputBox').innerHTML = "<div class='no-results'>No data found for that course.</div>";
       }
     }
 
