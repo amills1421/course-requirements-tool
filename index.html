@@ -100,6 +100,10 @@
   <label for="courseInput">Start typing a course title:</label>
   <input type="text" id="courseInput" placeholder="e.g., Chemistry A" />
   <div id="courseResults"></div>
+  <div style="margin-top: 1rem;">
+    <button onclick="clearResults()" style="margin-right: 1rem;">Clear</button>
+    <button onclick="window.print()">Print</button>
+  </div>
   <div id="loadingIndicator">Searching...</div>
   <div id="outputBox"></div>
 
@@ -120,7 +124,7 @@
       if (!val) return "—";
       let str = val.toString();
 
-      // Support [text](url) Markdown-style links
+      // Support [text](url)
       str = str.replace(/\[([^\]]+)\]\((https?:\/\/[^\s]+)\)/g, (_, text, url) => {
         return `<a href="${url}" target="_blank">${text}</a>`;
       });
@@ -128,8 +132,6 @@
       // Auto-detect plain URLs
       const urlRegex = /(https?:\/\/[^\s]+)/g;
       str = str.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`);
-
-      // Convert newlines to <br>
       str = str.replace(/\n/g, "<br>");
       return str;
     }
@@ -176,6 +178,14 @@
         document.getElementById('loadingIndicator').style.display = 'none';
         document.getElementById('outputBox').innerHTML = "<div class='no-results'>Error retrieving course data.</div>";
       }
+    }
+
+    function clearResults() {
+      document.getElementById('courseInput').value = "";
+      document.getElementById('courseResults').innerHTML = "";
+      document.getElementById('outputBox').innerHTML = "";
+      document.getElementById('loadingIndicator').style.display = 'none';
+      document.getElementById('courseInput').focus();
     }
 
     document.getElementById('courseInput').addEventListener('input', () => {
