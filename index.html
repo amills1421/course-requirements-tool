@@ -1,8 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
+<html><head>
   <title>Course Requirements Lookup</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&amp;display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <style>
     body {
@@ -92,7 +90,7 @@
 
   <h2>Course Requirements Lookup</h2>
   <label for="courseInput">Start typing a course title:</label>
-  <input type="text" id="courseInput" placeholder="e.g., Chemistry A" />
+  <input type="text" id="courseInput" placeholder="e.g., Chemistry A">
   <div id="courseResults"></div>
   <div id="loadingIndicator" style="display:none;">Searching...</div>
   <div id="outputBox"></div>
@@ -111,6 +109,11 @@
     }
 
     function formatValue(val) {
+      if (!val) return "—";
+      const str = val.toString();
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      return str.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`);
+    }
       if (!val) return "—";
       const str = val.toString();
       return str.startsWith("http") ? `<a href="${str}" target="_blank">${str}</a>` : str;
@@ -181,5 +184,6 @@
     window.addEventListener('DOMContentLoaded', fetchTitles);
   </script>
 
-</body>
-</html>
+
+
+</body></html>
