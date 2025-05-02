@@ -8,7 +8,7 @@
     body {
       font-family: 'Roboto', sans-serif;
       padding: 1rem;
-      max-width: 900px;
+      max-width: 1200px;
       margin: auto;
       background: #ffffff;
       color: #091d20;
@@ -44,36 +44,39 @@
     .course-button:hover {
       background-color: #115e6e;
     }
-    .output-box {
-      background-color: #f8f8f8;
-      border: 1px solid #ccc;
-      border-left: 6px solid #2f8d98;
-      padding: 1rem;
+    .widget-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 1rem;
       margin-top: 1rem;
-      border-radius: 4px;
     }
-    .output-item {
-      display: flex;
-      align-items: flex-start;
+    .widget-card {
+      background-color: #ffffff;
+      border: 2px solid #2f8d98;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      padding: 1rem;
+    }
+    .widget-card h4 {
+      margin-top: 0;
       margin-bottom: 0.5rem;
-    }
-    .output-item .label {
-      min-width: 280px;
-      font-weight: bold;
-      color: #093c44;
-    }
-    .output-item i {
-      margin-right: 8px;
       color: #115e6e;
-      width: 20px;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
     }
-    .output-item .value {
-      flex: 1;
+    .widget-card h4 i {
+      margin-right: 0.5rem;
+      color: #093c44;
     }
     .no-results {
       color: #d9534f;
       font-weight: bold;
       margin-top: 1rem;
+    }
+    a {
+      color: #a84c2a;
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -98,24 +101,35 @@
       }
     }
 
-    function filterTitles(query) {
-      return allTitles.filter(t => t.toLowerCase().includes(query));
+    function formatValue(val) {
+      if (!val) return "—";
+      const str = val.toString();
+      return str.startsWith("http") ? `<a href="${str}" target="_blank">${str}</a>` : str;
+    }
+
+    function generateCard(label, icon, value) {
+      return `
+        <div class="widget-card">
+          <h4><i class="${icon}"></i> ${label}</h4>
+          <p>${formatValue(value)}</p>
+        </div>
+      `;
     }
 
     function displayCourse(course) {
       const output = document.getElementById('outputBox');
       output.innerHTML = `
-        <div class="output-box">
-          <div class="output-item"><div class="label"><i class="fas fa-book"></i>Course Title:</div><div class="value">${course.courseTitle || "—"}</div></div>
-          <div class="output-item"><div class="label"><i class="fas fa-laptop-code"></i>Technical Requirements:</div><div class="value">${course.technical || "—"}</div></div>
-          <div class="output-item"><div class="label"><i class="fas fa-tablet-alt"></i>Device Restrictions:</div><div class="value">${course.device || "—"}</div></div>
-          <div class="output-item"><div class="label"><i class="fas fa-desktop"></i>Required Operating Systems:</div><div class="value">${course.os || "—"}</div></div>
-          <div class="output-item"><div class="label"><i class="fas fa-download"></i>Software Downloads:</div><div class="value">${course.software || "—"}</div></div>
-          <div class="output-item"><div class="label"><i class="fas fa-microchip"></i>Additional Hardware:</div><div class="value">${course.hardware || "—"}</div></div>
-          <div class="output-item"><div class="label"><i class="fas fa-book-open"></i>Textbook / eText:</div><div class="value">${course.textbook || "—"}</div></div>
-          <div class="output-item"><div class="label"><i class="fas fa-barcode"></i>ISBN:</div><div class="value">${course.isbn || "—"}</div></div>
-          <div class="output-item"><div class="label"><i class="fas fa-dollar-sign"></i>Estimated Cost:</div><div class="value">${course.cost || "—"}</div></div>
-          <div class="output-item"><div class="label"><i class="fas fa-coins"></i>Additional Costs:</div><div class="value">${course.additionalCosts || "—"}</div></div>
+        <div class="widget-grid">
+          ${generateCard("Course Title", "fas fa-book", course.courseTitle)}
+          ${generateCard("Technical Requirements", "fas fa-laptop-code", course.technical)}
+          ${generateCard("Device Restrictions", "fas fa-tablet-alt", course.device)}
+          ${generateCard("Required Operating Systems", "fas fa-desktop", course.os)}
+          ${generateCard("Software Downloads", "fas fa-download", course.software)}
+          ${generateCard("Additional Hardware", "fas fa-microchip", course.hardware)}
+          ${generateCard("Textbook / eText", "fas fa-book-open", course.textbook)}
+          ${generateCard("ISBN", "fas fa-barcode", course.isbn)}
+          ${generateCard("Estimated Cost", "fas fa-dollar-sign", course.cost)}
+          ${generateCard("Additional Costs", "fas fa-coins", course.additionalCosts)}
         </div>
       `;
     }
@@ -137,7 +151,7 @@
 
       if (query.length < 2) return;
 
-      const matches = filterTitles(query);
+      const matches = allTitles.filter(t => t.toLowerCase().includes(query));
       matches.forEach(match => {
         const btn = document.createElement('button');
         btn.className = 'course-button';
