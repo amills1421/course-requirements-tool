@@ -1,8 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
+<html><head>
   <title>Course Requirements Lookup</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&amp;display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <style>
     body { font-family: 'Roboto', sans-serif; padding: 1rem; max-width: 1200px; margin: auto; background: #fff; color: #091d20; }
@@ -23,7 +21,7 @@
 <body>
   <h2>Course Requirements Lookup</h2>
   <label for="courseInput">Start typing a course title:</label>
-  <input type="text" id="courseInput" placeholder="e.g., Chemistry A" />
+  <input type="text" id="courseInput" placeholder="e.g., Chemistry A">
   <div id="buttonControls" style="margin-bottom: 1rem;">
     <button class="control-button" onclick="clearResults()">Clear</button>
     <button class="control-button" onclick="delayedPrint()">Print</button>
@@ -51,7 +49,8 @@
       str = str.replace(/\*\*\*([^*]+)\*\*\*/g, '<strong><em>$1</em></strong>');
       str = str.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
       str = str.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-      str = str.replace(/\n/g, "<br>");
+      str = str.replace(/
+/g, "<br>");
       str = str.replace(/(^|[^">])(https?:\/\/[^\s<]+)/g, (_, b, url) => `${b}<a href="${url}" target="_blank">${url}</a>`);
       return str;
     }
@@ -61,6 +60,7 @@
       const body = isList ? `<ul style='padding-left: 1.25rem;'>${value}</ul>` : `<p>${formatValue(value)}</p>`;
       return `<div class="widget-card"><h4><i class="${icon}"></i> ${label}</h4>${body}</div>`;
     }
+
     function displayCourse(course) {
       const output = document.getElementById("outputBox");
       let titleHeader = `<h3>${course.courseTitle || "Course Requirements"}</h3>`;
@@ -92,7 +92,12 @@
     }
 
     function delayedPrint() {
-      setTimeout(() => { window.print(); }, 100);
+      const content = document.getElementById("outputBox").innerHTML;
+      const win = window.open("", "_blank");
+      win.document.write('<html><head><title>Print</title><style>body{font-family:Roboto,sans-serif;padding:2rem;}ul{padding-left:1.25rem;}h3{text-align:center;color:#093c44;}a{color:#a84c2a;}</style></head><body>' + content + '</body></html>');
+      win.document.close();
+      win.focus();
+      win.print();
     }
 
     document.getElementById('courseInput').addEventListener('input', () => {
@@ -134,5 +139,6 @@
 
     window.addEventListener('DOMContentLoaded', fetchTitles);
   </script>
-</body>
-</html>
+
+
+</body></html>
