@@ -124,18 +124,27 @@
       if (!val) return "—";
       let str = val.toString();
 
-      // Support [text](url)
+      // Markdown-style links [text](url)
       str = str.replace(/\[([^\]]+)\]\((https?:\/\/[^\s]+)\)/g, (_, text, url) => {
         return `<a href="${url}" target="_blank">${text}</a>`;
       });
 
-      // Auto-detect plain URLs
+      // Bold-italic
+      str = str.replace(/\*\*\*([^*]+)\*\*\*/g, '<strong><em>$1</em></strong>');
+      // Bold
+      str = str.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      // Italic
+      str = str.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+      // Line breaks
+      str = str.replace(/\n/g, "<br>");
+
+      // Auto-link plain URLs
       const urlRegex = /(https?:\/\/[^\s]+)/g;
       str = str.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`);
-      str = str.replace(/\n/g, "<br>");
+
       return str;
     }
-
     function generateCard(label, icon, value, subvalue = "") {
       return `
         <div class="widget-card">
@@ -211,6 +220,5 @@
 
     window.addEventListener('DOMContentLoaded', fetchTitles);
   </script>
-
 </body>
 </html>
