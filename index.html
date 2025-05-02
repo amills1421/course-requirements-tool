@@ -61,6 +61,7 @@
       border-radius: 10px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.05);
       padding: 1rem;
+      word-break: break-word;
     }
     .widget-card h4 {
       margin-top: 0;
@@ -89,6 +90,7 @@
     a {
       color: #a84c2a;
       text-decoration: underline;
+      word-break: break-word;
     }
   </style>
 </head>
@@ -117,17 +119,23 @@
     function formatValue(val) {
       if (!val) return "—";
       let str = val.toString();
+
+      // Support markdown-style links [text](url)
+      str = str.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+
+      // Auto-detect plain URLs
       const urlRegex = /(https?:\/\/[^\s]+)/g;
       str = str.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`);
       str = str.replace(/\n/g, "<br>");
       return str;
     }
 
-    function generateCard(label, icon, value) {
+    function generateCard(label, icon, value, subvalue = "") {
       return `
         <div class="widget-card">
           <h4><i class="${icon}"></i> ${label}</h4>
           <p>${formatValue(value)}</p>
+          ${subvalue ? `<p style="margin-top: 0.5rem;"><strong>Estimated Cost:</strong> ${formatValue(subvalue)}</p>` : ""}
         </div>
       `;
     }
@@ -142,8 +150,7 @@
           ${generateCard("Required Operating Systems", "fas fa-desktop", course.os)}
           ${generateCard("Software Downloads", "fas fa-download", course.software)}
           ${generateCard("Additional Hardware", "fas fa-microchip", course.hardware)}
-          ${generateCard("Textbook / eText", "fas fa-book-open", course.textbook)}
-          ${generateCard("Estimated Cost", "fas fa-dollar-sign", course.cost)}
+          ${generateCard("Textbook / eText", "fas fa-book-open", course.textbook, course.cost)}
           ${generateCard("Additional Costs", "fas fa-coins", course.additionalCosts)}
         </div>
       `;
