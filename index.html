@@ -1,6 +1,8 @@
-<html><head>
+<!DOCTYPE html>
+<html>
+<head>
   <title>Course Requirements Lookup</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <style>
     body {
@@ -14,6 +16,11 @@
     h2 {
       text-align: center;
       color: #093c44;
+    }
+    h3 {
+      text-align: center;
+      color: #093c44;
+      margin-top: 1rem;
     }
     label {
       font-weight: bold;
@@ -72,27 +79,26 @@
       font-weight: bold;
       margin-top: 1rem;
     }
-    a {
-      color: #a84c2a;
-      text-decoration: underline;
-    }
-  
     #loadingIndicator {
       text-align: center;
       color: #a84c2a;
       font-style: italic;
       margin-top: 1rem;
+      display: none;
     }
-    </style>
-    
+    a {
+      color: #a84c2a;
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
 
   <h2>Course Requirements Lookup</h2>
   <label for="courseInput">Start typing a course title:</label>
-  <input type="text" id="courseInput" placeholder="e.g., Chemistry A">
+  <input type="text" id="courseInput" placeholder="e.g., Chemistry A" />
   <div id="courseResults"></div>
-  <div id="loadingIndicator" style="display:none;">Searching...</div>
+  <div id="loadingIndicator">Searching...</div>
   <div id="outputBox"></div>
 
   <script>
@@ -116,47 +122,6 @@
       str = str.replace(/\n/g, "<br>");
       return str;
     }
-      if (!val) return "—";
-      const str = val.toString();
-      const urlRegex = /(https?:\/\/[^\s]+)/g;
-      return str.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`);
-    }
-      if (!val) return "—";
-      const str = val.toString();
-      return str.startsWith("http") ? `<a href="${str}" target="_blank">${str}</a>` : str;
-    }
-
-    function displayCourse(course) {
-      const output = document.getElementById('outputBox');
-      const titleHeader = `<h3 style="color: #093c44; text-align: center; margin-top: 1rem;">${course.courseTitle || "Course Requirements"}</h3>`;
-      output.innerHTML = titleHeader + `
-        <div class="widget-grid">
-          ${generateCard("Technical Requirements", "fas fa-laptop-code", course.technical)}
-          ${generateCard("Device Restrictions", "fas fa-tablet-alt", course.device)}
-          ${generateCard("Required Operating Systems", "fas fa-desktop", course.os)}
-          ${generateCard("Software Downloads", "fas fa-download", course.software)}
-          ${generateCard("Additional Hardware", "fas fa-microchip", course.hardware)}
-          ${generateCard("Textbook / eText", "fas fa-book-open", course.textbook)}
-                    ${generateCard("Estimated Cost", "fas fa-dollar-sign", course.cost)}
-          ${generateCard("Additional Costs", "fas fa-coins", course.additionalCosts)}
-        </div>
-      `;
-    }
-      const output = document.getElementById('outputBox');
-      output.innerHTML = `
-        <div class="widget-grid">
-          ${generateCard("Course Title", "fas fa-book", course.courseTitle)}
-          ${generateCard("Technical Requirements", "fas fa-laptop-code", course.technical)}
-          ${generateCard("Device Restrictions", "fas fa-tablet-alt", course.device)}
-          ${generateCard("Required Operating Systems", "fas fa-desktop", course.os)}
-          ${generateCard("Software Downloads", "fas fa-download", course.software)}
-          ${generateCard("Additional Hardware", "fas fa-microchip", course.hardware)}
-          ${generateCard("Textbook / eText", "fas fa-book-open", course.textbook)}
-                    ${generateCard("Estimated Cost", "fas fa-dollar-sign", course.cost)}
-          ${generateCard("Additional Costs", "fas fa-coins", course.additionalCosts)}
-        </div>
-      `;
-    }
 
     function generateCard(label, icon, value) {
       return `
@@ -167,17 +132,38 @@
       `;
     }
 
+    function displayCourse(course) {
+      const output = document.getElementById('outputBox');
+      const titleHeader = `<h3>${course.courseTitle || "Course Requirements"}</h3>`;
+      output.innerHTML = titleHeader + `
+        <div class="widget-grid">
+          ${generateCard("Technical Requirements", "fas fa-laptop-code", course.technical)}
+          ${generateCard("Device Restrictions", "fas fa-tablet-alt", course.device)}
+          ${generateCard("Required Operating Systems", "fas fa-desktop", course.os)}
+          ${generateCard("Software Downloads", "fas fa-download", course.software)}
+          ${generateCard("Additional Hardware", "fas fa-microchip", course.hardware)}
+          ${generateCard("Textbook / eText", "fas fa-book-open", course.textbook)}
+          ${generateCard("Estimated Cost", "fas fa-dollar-sign", course.cost)}
+          ${generateCard("Additional Costs", "fas fa-coins", course.additionalCosts)}
+        </div>
+      `;
+    }
+
     async function loadCourse(title) {
       document.getElementById('loadingIndicator').style.display = 'block';
       document.getElementById('outputBox').innerHTML = "";
-      const res = await fetch(API_URL + "?course=" + encodeURIComponent(title));
-      const data = await res.json();
-      document.getElementById('loadingIndicator').style.display = 'none';
-      if (data && data.length > 0) {
-        displayCourse(data[0]);
-      } else {
+      try {
+        const res = await fetch(API_URL + "?course=" + encodeURIComponent(title));
+        const data = await res.json();
         document.getElementById('loadingIndicator').style.display = 'none';
-      document.getElementById('outputBox').innerHTML = "<div class='no-results'>No data found for that course.</div>";
+        if (data && data.length > 0) {
+          displayCourse(data[0]);
+        } else {
+          document.getElementById('outputBox').innerHTML = "<div class='no-results'>No data found for that course.</div>";
+        }
+      } catch {
+        document.getElementById('loadingIndicator').style.display = 'none';
+        document.getElementById('outputBox').innerHTML = "<div class='no-results'>Error retrieving course data.</div>";
       }
     }
 
@@ -205,6 +191,5 @@
     window.addEventListener('DOMContentLoaded', fetchTitles);
   </script>
 
-
-
-</body></html>
+</body>
+</html>
