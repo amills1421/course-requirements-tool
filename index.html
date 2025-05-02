@@ -110,6 +110,13 @@
 
     function formatValue(val) {
       if (!val) return "—";
+      let str = val.toString();
+      const urlRegex = /(https?:\/\/[^\s]+)/g;
+      str = str.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`);
+      str = str.replace(/\n/g, "<br>");
+      return str;
+    }
+      if (!val) return "—";
       const str = val.toString();
       const urlRegex = /(https?:\/\/[^\s]+)/g;
       return str.replace(urlRegex, url => `<a href="${url}" target="_blank">${url}</a>`);
@@ -121,6 +128,21 @@
 
     function displayCourse(course) {
       const output = document.getElementById('outputBox');
+      const titleHeader = `<h3 style="color: #093c44; text-align: center; margin-top: 1rem;">${course.courseTitle || "Course Requirements"}</h3>`;
+      output.innerHTML = titleHeader + `
+        <div class="widget-grid">
+          ${generateCard("Technical Requirements", "fas fa-laptop-code", course.technical)}
+          ${generateCard("Device Restrictions", "fas fa-tablet-alt", course.device)}
+          ${generateCard("Required Operating Systems", "fas fa-desktop", course.os)}
+          ${generateCard("Software Downloads", "fas fa-download", course.software)}
+          ${generateCard("Additional Hardware", "fas fa-microchip", course.hardware)}
+          ${generateCard("Textbook / eText", "fas fa-book-open", course.textbook)}
+                    ${generateCard("Estimated Cost", "fas fa-dollar-sign", course.cost)}
+          ${generateCard("Additional Costs", "fas fa-coins", course.additionalCosts)}
+        </div>
+      `;
+    }
+      const output = document.getElementById('outputBox');
       output.innerHTML = `
         <div class="widget-grid">
           ${generateCard("Course Title", "fas fa-book", course.courseTitle)}
@@ -130,8 +152,7 @@
           ${generateCard("Software Downloads", "fas fa-download", course.software)}
           ${generateCard("Additional Hardware", "fas fa-microchip", course.hardware)}
           ${generateCard("Textbook / eText", "fas fa-book-open", course.textbook)}
-          ${generateCard("ISBN", "fas fa-barcode", course.isbn)}
-          ${generateCard("Estimated Cost", "fas fa-dollar-sign", course.cost)}
+                    ${generateCard("Estimated Cost", "fas fa-dollar-sign", course.cost)}
           ${generateCard("Additional Costs", "fas fa-coins", course.additionalCosts)}
         </div>
       `;
