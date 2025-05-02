@@ -1,6 +1,8 @@
-<html><head>
+<!DOCTYPE html>
+<html>
+<head>
   <title>Course Requirements Lookup</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <style>
     body { font-family: 'Roboto', sans-serif; padding: 1rem; max-width: 1200px; margin: auto; background: #fff; color: #091d20; }
@@ -21,7 +23,7 @@
 <body>
   <h2>Course Requirements Lookup</h2>
   <label for="courseInput">Start typing a course title:</label>
-  <input type="text" id="courseInput" placeholder="e.g., Chemistry A">
+  <input type="text" id="courseInput" placeholder="e.g., Chemistry A" />
   <div id="buttonControls" style="margin-bottom: 1rem;">
     <button class="control-button" onclick="clearResults()">Clear</button>
     <button class="control-button" onclick="delayedPrint()">Print</button>
@@ -32,6 +34,7 @@
   <script>
     const API_URL = "https://script.google.com/a/macros/mivu.org/s/AKfycby-tCUKDQcIklm2cGDW2JpFp4WV9ZvqZHhsPLOaazmRd76h9-mHwTQ0n5AQaPfeB9xzsg/exec";
     let allTitles = [];
+
     async function fetchTitles() {
       try {
         const res = await fetch(API_URL + "?getTitles=true");
@@ -40,6 +43,7 @@
         console.error("Failed to fetch course titles.");
       }
     }
+
     function formatValue(val) {
       if (!val) return "—";
       let str = val.toString();
@@ -51,23 +55,34 @@
       str = str.replace(/(^|[^">])(https?:\/\/[^\s<]+)/g, (_, b, url) => `${b}<a href="${url}" target="_blank">${url}</a>`);
       return str;
     }
+
     function generateCard(label, icon, value) {
-      return `<div class="widget-card"><h4><i class="${icon}"></i> ${label}</h4><p>${formatValue(value)}</p></div>`;
+      const isList = typeof value === 'string' && value.includes('<li>');
+      const body = isList ? `<ul style='padding-left: 1.25rem;'>${value}</ul>` : `<p>${formatValue(value)}</p>`;
+      return `<div class="widget-card"><h4><i class="${icon}"></i> ${label}</h4>${body}</div>`;
     }
     function displayCourse(course) {
       const output = document.getElementById("outputBox");
-      const titleHeader = `<h3>${course.courseTitle || "Course Requirements"}</h3>`;
+      let titleHeader = `<h3>${course.courseTitle || "Course Requirements"}</h3>`;
+      if (course.syllabus) {
+        titleHeader += `<p style="text-align: center; margin-top: -0.5rem;"><a href="${course.syllabus}" target="_blank">View Syllabus</a></p>`;
+      }
+      if (course.resourcesFlag && course.resourcesFlag.toLowerCase() === "yes") {
+        titleHeader += `<div style="background-color: #fff3cd; border: 1px solid #ffeeba; padding: 0.75rem; text-align: center; margin: 0.5rem 0; border-radius: 6px;">
+          <i class="fas fa-flag" style="color: #a84c2a;"></i> <strong>Unique Resources / Materials Needed</strong></div>`;
+      }
+
       output.innerHTML = titleHeader + `
         <div class="widget-grid">
-          ${generateCard("Syllabus URL", "fas fa-link", course.syllabus)}
-          ${generateCard("Unique Resources / Materials Flag", "fas fa-flag", course.resourcesFlag)}
-          ${generateCard("Device and Technical Requirements", "fas fa-laptop-code", course.technical)}
-          ${generateCard("Additional Hardware or Software", "fas fa-microchip", course.hardwareSoftware)}
+          ${generateCard("Device and Technical Requirements", "fas fa-laptop-code", (course.technical || "").split(/,\s*/).map(i => `<li>${i}</li>`).join(""))}
+          ${generateCard("Additional Hardware or Software", "fas fa-microchip", (course.hardwareSoftware || "").split(/,\s*/).map(i => `<li>${i}</li>`).join(""))}
           ${generateCard("Textbook / eText", "fas fa-book-open", course.textbook)}
           ${generateCard("Any Additional Costs", "fas fa-coins", course.costs)}
           ${generateCard("Any Additional Information", "fas fa-info-circle", course.additionalInfo)}
-        </div>`;
+        </div>
+      `;
     }
+
     function clearResults() {
       document.getElementById('courseInput').value = "";
       document.getElementById('courseResults').innerHTML = "";
@@ -75,9 +90,11 @@
       document.getElementById('loadingIndicator').style.display = 'none';
       document.getElementById('courseInput').focus();
     }
+
     function delayedPrint() {
       setTimeout(() => { window.print(); }, 100);
     }
+
     document.getElementById('courseInput').addEventListener('input', () => {
       const query = document.getElementById('courseInput').value.toLowerCase().trim();
       const courseResults = document.getElementById('courseResults');
@@ -96,6 +113,7 @@
         courseResults.appendChild(btn);
       });
     });
+
     async function loadCourse(title) {
       document.getElementById('loadingIndicator').style.display = 'block';
       document.getElementById('outputBox').innerHTML = "";
@@ -113,8 +131,8 @@
         document.getElementById('outputBox').innerHTML = "<div class='no-results'>Error retrieving course data.</div>";
       }
     }
+
     window.addEventListener('DOMContentLoaded', fetchTitles);
   </script>
-
-
-</body></html>
+</body>
+</html>
